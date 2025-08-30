@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Excel Generator</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .control-group {
+            width: 100%;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 16px;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #f8f9fa;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 16px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .export-btn {
+            background: #27ae60;
+        }
+        
+        .export-btn:hover {
+            background: #219653;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            position: relative;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .instructions {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        
+        .publishing-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+        
+        .publishing-info h3 {
+            margin-bottom: 15px;
+            color: #0d47a1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .publishing-info ul {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .publishing-info li {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        
+        .mobile-tips {
+            background: #fff8e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+        
+        .mobile-tips h3 {
+            margin-bottom: 15px;
+            color: #e65100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mobile-tips ul {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .mobile-tips li {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        
+        .icon {
+            font-size: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 700px;
+                padding: 30px;
+            }
+            
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .control-group {
+                flex: 1;
+                min-width: 250px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+            
+            .description {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            
+            button {
+                padding: 14px;
+            }
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-table"></i> Excel Data Generator</h1>
+            <p class="description">Create sample data and export to Excel - optimized for mobile</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="rows"><i class="fas fa-bars"></i> Number of Rows</label>
+                <input type="number" id="rows" min="1" max="50" value="10">
+            </div>
+            
+            <div class="control-group">
+                <label for="dataType"><i class="fas fa-cog"></i> Data Type</label>
+                <select id="dataType">
+                    <option value="numbers">Numbers</option>
+                    <option value="names">Names</option>
+                    <option value="dates">Dates</option>
+                    <option value="mixed">Mixed Data</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="generate">Generate Data</label>
+                <button id="generate"><i class="fas fa-sync-alt"></i> Generate</button>
+            </div>
+            
+            <div class="control-group">
+                <label for="export">Export to Excel</label>
+                <button id="export" class="export-btn"><i class="fas fa-file-excel"></i> Export</button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Date</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mobile-tips">
+            <h3><i class="fas fa-mobile-alt"></i> Mobile Tips</h3>
+            <ul>
+                <li>Swipe left/right to scroll through the table on mobile</li>
+                <li>Pinch to zoom if you need to see details more clearly</li>
+                <li>Your Excel file will download to your device's default download folder</li>
+                <li>For best experience, use landscape mode when working with tables</li>
+            </ul>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to use:</h3>
+            <ol>
+                <li>Select the number of rows you want to generate</li>
+                <li>Choose the data type for the sample data</li>
+                <li>Click "Generate Data" to create the data table</li>
+                <li>Click "Export to Excel" to download the data as an XLSX file</li>
+                <li>Open the downloaded file in Excel or any spreadsheet application</li>
+            </ol>
+        </div>
+        
+        <div class="publishing-info">
+            <h3><i class="fas fa-cloud-upload-alt"></i> Publish Your Website:</h3>
+            <ul>
+                <li><strong>GitHub Pages</strong>: Free hosting with yourusername.github.io URL</li>
+                <li><strong>Netlify</strong>: Drag and drop deployment with free subdomain</li>
+                <li><strong>Vercel</strong>: Free hosting for static sites with custom domain support</li>
+                <li>All options work perfectly on mobile devices</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Excel Data Generator | Works perfectly on mobile devices</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate');
+            const exportBtn = document.getElementById('export');
+            const tableBody = document.querySelector('#dataTable tbody');
+            const rowsInput = document.getElementById('rows');
+            const dataTypeSelect = document.getElementById('dataType');
+            
+            // Sample data generators
+            const firstNames = ['James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth'];
+            const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
+            const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'example.com', 'company.org'];
+            
+            function generateData() {
+                const rowCount = parseInt(rowsInput.value);
+                const dataType = dataTypeSelect.value;
+                
+                // Limit rows on mobile for better performance
+                if (rowCount > 50) {
+                    alert("For better mobile performance, maximum 50 rows allowed.");
+                    rowsInput.value = 50;
+                    return;
+                }
+                
+                // Clear existing table data
+                tableBody.innerHTML = '';
+                
+                for (let i = 1; i <= rowCount; i++) {
+                    const row = document.createElement('tr');
+                    
+                    // ID column
+                    const idCell = document.createElement('td');
+                    idCell.textContent = i;
+                    row.appendChild(idCell);
+                    
+                    // Name column
+                    const nameCell = document.createElement('td');
+                    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                    nameCell.textContent = `${firstName} ${lastName}`;
+                    row.appendChild(nameCell);
+                    
+                    // Email column
+                    const emailCell = document.createElement('td');
+                    emailCell.textContent = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domains[Math.floor(Math.random() * domains.length)]}`;
+                    row.appendChild(emailCell);
+                    
+                    // Date column
+                    const dateCell = document.createElement('td');
+                    const startDate = new Date(2020, 0, 1);
+                    const endDate = new Date();
+                    const randomDate = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+                    dateCell.textContent = randomDate.toLocaleDateString();
+                    row.appendChild(dateCell);
+                    
+                    // Value column (varies based on data type)
+                    const valueCell = document.createElement('td');
+                    
+                    switch(dataType) {
+                        case 'numbers':
+                            valueCell.textContent = (Math.random() * 1000).toFixed(2);
+                            break;
+                        case 'names':
+                            valueCell.textContent = firstNames[Math.floor(Math.random() * firstNames.length)];
+                            break;
+                        case 'dates':
+                            const randomDate2 = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+                            valueCell.textContent = randomDate2.toLocaleDateString();
+                            break;
+                        case 'mixed':
+                            const rand = Math.random();
+                            if (rand < 0.3) {
+                                valueCell.textContent = (Math.random() * 1000).toFixed(2);
+                            } else if (rand < 0.6) {
+                                valueCell.textContent = firstNames[Math.floor(Math.random() * firstNames.length)];
+                            } else {
+                                const randomDate3 = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+                                valueCell.textContent = randomDate3.toLocaleDateString();
+                            }
+                            break;
+                    }
+                    
+                    row.appendChild(valueCell);
+                    tableBody.appendChild(row);
+                }
+            }
+            
+            function exportToExcel() {
+                // Get table data
+                const table = document.getElementById('dataTable');
+                
+                // Create a worksheet
+                const ws = XLSX.utils.table_to_sheet(table);
+                
+                // Create a workbook
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                
+                // Generate Excel file and trigger download
+                XLSX.writeFile(wb, "mobile_data.xlsx");
+            }
+            
+            // Event listeners
+            generateBtn.addEventListener('click', generateData);
+            exportBtn.addEventListener('click', exportToExcel);
+            
+            // Touch event for mobile
+            generateBtn.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            generateBtn.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+            
+            exportBtn.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            exportBtn.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+            
+            // Generate initial data on page load
+            generateData();
+        });
+    </script>
+</body>
+  </html>
